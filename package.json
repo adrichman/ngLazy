@@ -1,0 +1,30 @@
+{
+  "name": "ngLazy",
+  "version": "0.1.0",
+  "description": "ngLazy",
+  "main": "Gulpfile.js",
+  "dependencies": {
+    "gulp": "~3.6.0",
+    "gulp-concat": "~2.2.0",
+    "gulp-ngmin": "~0.2.0",
+    "gulp-notify": "~1.2.5",
+    "gulp-uglify": "~0.2.1"
+  },
+  "devDependencies": {
+    "gulp-jshint": "^1.5.3",
+    "jshint-stylish": "^0.1.5"
+  },
+  "scripts": {
+    "test": "gulp lint;"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adrichman/ngLazy.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adrichman/ngLazy/issues"
+  },
+  "homepage": "https://github.com/adrichman/ngLazy"
+}
