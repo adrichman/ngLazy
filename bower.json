@@ -15,7 +15,7 @@
     "directive"
   ],
   "license": "MIT",
-  "homepage": "github.com/adrichman/ngLazy",
+  "homepage": "http://github.com/adrichman/ngLazy",
   "private": false,
   "ignore": [
     "**/.*",

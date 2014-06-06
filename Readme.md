@@ -78,3 +78,7 @@ In your view, wrap the element containing the ng-repeat with the lazy-load eleme
           </table>
       </lazy-load>
 ```
+
+###TODO:
+* tests!!
+* more flexibility with different api responses and data services
