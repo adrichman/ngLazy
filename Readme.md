@@ -1,6 +1,9 @@
-#ng-Lazy
+#ng-Lazy 
+
 
 #### Lazy-loading and infinite scroll library for AngularJS
+
+__Pull Requests are Welcomed! | Live Demo: [http://ng-Lazy.com](http://ng-Lazy.com)__
 
 Requires one simple directive wrapping the targeted area.
 
