@@ -56,10 +56,21 @@ angular.module('ngLazy.directives',[])
               '</div>'+
               '<div id=\'lazy-bottom\'></div>',
     link: function(scope) {
+            
+            function getThreshold(total, item){
+              return total - (item * 3);
+            }
+
+            function getScrollHeight(){
+              return win.document.body.scrollHeight;
+            }
+
             var winEl             = angular.element($window),
                 win               = winEl[0],
                 lazyBottom        = angular.element(document.querySelector('#lazy-bottom'))[0],
-                lazyBottomOffset  = lazyBottom.offsetTop - 20,
+                scrollHeight      = getScrollHeight(),
+                itemHeight        = scrollHeight - lazyBottom.offsetTop,
+                threshold         = getThreshold(scrollHeight, itemHeight),
                 lazyLoader        = $injector.get('lazyLoader'),
                 dataService       = $injector.get(scope.lazyDataService),
                 loadingWidget     = angular.element(document.querySelector('.loading-widget')),
@@ -69,7 +80,7 @@ angular.module('ngLazy.directives',[])
             appendAnimations();
             loadingWidget         = makeSpinner(loadingWidget, 'transparent ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor || 'transparent rgb(85, 148, 250) rgb(85, 148, 250) rgb(85, 148, 250)');
             scope.spinner         = { hide : false };
-
+            
             var lazyLoad = function(){
               lazyLoader.configure({
                 data            : scope.lazyData,
@@ -104,13 +115,12 @@ angular.module('ngLazy.directives',[])
             $rootScope.$on('showLoading', function(){ scope.spinner.hide = false; });
 
             winEl.bind('scroll', function(){
-              if (!loading && win.scrollY >= lazyBottomOffset) {
+              if (!loading && win.scrollY >= threshold) {
                 loading = true;
-                lazyBottomOffset = lazyBottomOffset * 2;
                 win.requestAnimationFrame(function(){
                   scope.$apply(function(){ 
                     lazyLoad();
-                    lazyBottomOffset = lazyBottom.offsetTop-10;
+                    threshold = getThreshold(getScrollHeight(), itemHeight);
                   });
                 });
               }
