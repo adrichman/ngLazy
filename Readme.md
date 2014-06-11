@@ -3,37 +3,41 @@
 
 #### Lazy-loading and infinite scroll library for AngularJS
 
-__Pull Requests are Welcomed! | Live Demo: [http://ng-Lazy.com](http://ng-Lazy.com)__
+__Live Demo: [http://ng-Lazy.com](http://ng-Lazy.com)__
 
 Requires one simple directive wrapping the targeted area.
 
 The widget is configured via the element's attributes, which miror the keys:
 
-  * data =>  The object on which you are storing the data sets:
+  * data          :  The object on which you are storing the data sets:
 
   ```
   $scope.data = { dbCollection: [], otherHash: {}, anotherList: []} 
   ```
   
-  * collectionKey => The key(string) to access the collection you will iterate through:
+  * collectionKey : The key(string) to access the collection you will iterate through:
 
   ``` 
   collectionKey = "dbCollection" 
   ```
 
-  * dataService => The angular service that makes external api calls
+  * dataService : The angular service that makes external api calls
 
-  * fetchMethod => The method on your dataService that makes the api call. Must return a promise.
+  * fetchMethod : The method on your dataService that makes the api call. 
+                  Must return a promise.
 
-  * range => number of items to be loaded on each lazyLoad trigger
+  * range       : number of items to be loaded on each lazyLoad trigger
 
-  * dataKeys =>  the keys expected to be found on the response of the api call (used to map the response onto a cache object)
+  * dataKeys    : the keys expected to be found on the response of the api
+                  call (used to map the response onto a cache object)
 
-  * startDelay => time in milliseconds to delay the start of the api call
+  * startDelay  : time in milliseconds to delay the start of the api call
 
-  * appendDelay => time in milliseconds to delay appending the response of the api call (because too quick of a response can feel less magical to the user)
+  * appendDelay : time in milliseconds to delay appending the response of the
+                  api call (because too quick of a response can feel less magical to the user)
 
-  * spinnerColor => the rgb or hex color code to determine the spinner's fill color
+  * spinnerColor: the rgb or hex color code to determine the spinner's
+                  fill color
 
 ####Implementation:
 
@@ -82,6 +86,7 @@ In your view, wrap the element containing the ng-repeat with the lazy-load eleme
       </lazy-load>
 ```
 
+__Pull Requests are Welcomed__
 ###TODO:
 * tests!!
 * more flexibility with different api responses and data services
