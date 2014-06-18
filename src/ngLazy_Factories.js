@@ -1,5 +1,6 @@
 'use strict';
 
+
 angular.module('ngLazy.factories',[])  
 .factory('lazyLoader', ['$timeout','$rootScope', '$q', function($timeout, $rootScope, $q){
   var cache = { data : {} },
@@ -27,7 +28,6 @@ angular.module('ngLazy.factories',[])
 
     getData : function(){
                 var deferred  = $q.defer();
-                console.log(this);
                 $rootScope.$broadcast('showLoading');
 
                 if (!cache.data[collectionKey]) {

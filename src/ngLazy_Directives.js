@@ -105,10 +105,12 @@ angular.module('ngLazy.directives',[])
                 }));
               });
 
-              var tryAgain = $timeout(function(){
-                console.log('waited');
-                lazyLoad();
-              },300);
+              var tryAgain = function(){
+                return $timeout(function(){
+                  console.log('waited');
+                  lazyLoad();
+                },100);
+              };
 
               lazyLoader.load()
               .then(
@@ -125,9 +127,11 @@ angular.module('ngLazy.directives',[])
                 // if Error, config bindings were not ready. Wait and try again.
                 function(error){
                   console.log(error.message);
-                  tryAgain().then(function(){
-                    $timeout.cancel(tryAgain);
-                  });
+                  if(error){
+                    tryAgain().then(function(){
+                      $timeout.cancel(tryAgain);
+                    });
+                  }
                 }
               );
             };
