@@ -15,20 +15,19 @@ angular.module('ngLazy.factories',[])
   return ({
 
     configure:  function(options){
-                  config = options;
+                  config        = options;
+                  data          = config.data;
+                  collectionKey = config.collectionKey;
+                  fetch         = config.fetchData;
+                  responseKeys  = config.dataKeys;
+                  range         = config.range;
+                  appendDelay   = config.appendDelay;
+                  startDelay    = config.startDelay;
     },  
 
     getData : function(){
-                data          = config.data;
-                collectionKey = config.collectionKey;
-                fetch         = config.fetchData;
-                responseKeys  = config.dataKeys;
-                range         = config.range;
-                appendDelay   = config.appendDelay;
-                startDelay    = config.startDelay;
-                
                 var deferred  = $q.defer();
-
+                console.log(this);
                 $rootScope.$broadcast('showLoading');
 
                 if (!cache.data[collectionKey]) {
@@ -36,7 +35,7 @@ angular.module('ngLazy.factories',[])
                     angular.forEach(responseKeys, function(key){
                       cache.data[key] = res.data[key];
                       if (key === collectionKey) {
-                        data[key]       = [];
+                        data[key] = [];
                         data[key] = data[key].concat(cache.data[key].splice(0, range));
                       } else {
                         data[key] = cache.data[key]; 
@@ -56,21 +55,33 @@ angular.module('ngLazy.factories',[])
     },
 
     load :  function(){
-              var deferred = $q.defer();
-              var _this = this;
+              var deferred              = $q.defer();
+              var _this                 = this;
+              var undefinedConfigValues = false;
 
               $rootScope.$broadcast('showLoading');
               
-              var loadTimer = $timeout(function(){ 
-                _this.getData().then(function(col){
-                  deferred.resolve(col);
-                });
-              }, startDelay);
-              
-              loadTimer.then(function(){ 
-                $timeout.cancel(loadTimer);
+              // Check for config bindings before initiating a request with undefined parameters 
+              angular.forEach(Object.keys(config), function(key){
+                if (!config[key]) { undefinedConfigValues = true; }
               });
 
+              if (undefinedConfigValues){
+
+                // wait for bindings and try again
+                deferred.reject(new Error('Bindings are not yet defined'));
+
+              } else {
+                var loadTimer = $timeout(function(){ 
+                  _this.getData().then(function(col){
+                    deferred.resolve(col);
+                  });
+                }, startDelay);
+                
+                loadTimer.then(function(){ 
+                  $timeout.cancel(loadTimer);
+                });
+              }
               return deferred.promise;
     }
   });
