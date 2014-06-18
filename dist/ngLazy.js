@@ -68,13 +68,13 @@ angular.module('ngLazy.directives',[])
               '<div id=\'lazy-bottom\'></div>',
     link: function(scope) {
             
-            function getThreshold(total, item){
+            var getThreshold = function(total, item){
               return total - (item * 3);
-            }
+            };
 
-            function getScrollHeight(){
+            var getScrollHeight = function(){
               return win.document.body.scrollHeight;
-            }
+            };
 
             var winEl             = angular.element($window),
                 win               = winEl[0],
@@ -82,27 +82,33 @@ angular.module('ngLazy.directives',[])
                 scrollHeight      = getScrollHeight(),
                 itemHeight        = scrollHeight - lazyBottom.offsetTop,
                 threshold         = getThreshold(scrollHeight, itemHeight),
+                loadingWidget     = angular.element(document.querySelector('.loading-widget')),
                 lazyLoader        = $injector.get('lazyLoader'),
                 dataService       = $injector.get(scope.lazyDataService),
-                loadingWidget     = angular.element(document.querySelector('.loading-widget')),
                 hasRun            = false,
-                loading           = false;
+                loading           = true,
+                lazyLoadConfig    = {};
 
             appendAnimations();
             loadingWidget         = makeSpinner(loadingWidget, 'transparent ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor || 'transparent rgb(85, 148, 250) rgb(85, 148, 250) rgb(85, 148, 250)');
             scope.spinner         = { hide : false };
             
+            var bindConfiguration = function(){
+              lazyLoadConfig.data            = scope.lazyData;
+              lazyLoadConfig.collectionKey   = scope.lazyDataCollectionKey;
+              lazyLoadConfig.fetchData       = dataService[scope.lazyFetchMethod];
+              lazyLoadConfig.range           = scope.lazyRange;
+              lazyLoadConfig.dataKeys        = scope.lazyDataKeys;
+              lazyLoadConfig.startDelay      = scope.lazyStartDelay;
+              lazyLoadConfig.appendDelay     = scope.lazyAppendDelay;
+              lazyLoadConfig.spinnerColor    = scope.lazySpinnerColor;
+              return lazyLoadConfig;
+            };
+
             var lazyLoad = function(){
-              lazyLoader.configure({
-                data            : scope.lazyData,
-                collectionKey   : scope.lazyDataCollectionKey,
-                fetchData       : dataService[scope.lazyFetchMethod],
-                range           : scope.lazyRange,
-                dataKeys        : scope.lazyDataKeys,
-                startDelay      : scope.lazyStartDelay,
-                appendDelay     : scope.lazyAppendDelay,
-                spinnerColor    : scope.spinnerColor
-              });
+              
+              lazyLoadConfig = bindConfiguration();
+              lazyLoader.configure(lazyLoadConfig);
 
               scope.$watch('spinnerColor', function(){
                 angular.element(loadingWidget.css({
@@ -110,16 +116,31 @@ angular.module('ngLazy.directives',[])
                 }));
               });
 
-              lazyLoader.load().then(function(data){
-                if(!hasRun){
-                  angular.forEach(Object.keys(data), function(key){
-                    scope.lazyData[key] = data[key];
+              var tryAgain = $timeout(function(){
+                console.log('waited');
+                lazyLoad();
+              },300);
+
+              lazyLoader.load()
+              .then(
+                function(data){
+                  if(!hasRun){
+                    angular.forEach(Object.keys(data), function(key){
+                      scope.lazyData[key] = data[key];
+                    });
+                  } else {
+                    scope.lazyData[scope.lazyDataCollectionKey] = data[scope.lazyDataCollectionKey];
+                  }
+                  loading = false;
+                }, 
+                // if Error, config bindings were not ready. Wait and try again.
+                function(error){
+                  console.log(error.message);
+                  tryAgain().then(function(){
+                    $timeout.cancel(tryAgain);
                   });
-                } else {
-                  scope.lazyData[scope.lazyDataCollectionKey] = data[scope.lazyDataCollectionKey];
                 }
-                loading = false;
-              });
+              );
             };
 
             $rootScope.$on('hideLoading', function(){ scope.spinner.hide = true; });
@@ -137,8 +158,7 @@ angular.module('ngLazy.directives',[])
               }
             });
             lazyLoad();
-          }
-        };
+        }};
 }]);
 'use strict';
 
@@ -157,20 +177,19 @@ angular.module('ngLazy.factories',[])
   return ({
 
     configure:  function(options){
-                  config = options;
+                  config        = options;
+                  data          = config.data;
+                  collectionKey = config.collectionKey;
+                  fetch         = config.fetchData;
+                  responseKeys  = config.dataKeys;
+                  range         = config.range;
+                  appendDelay   = config.appendDelay;
+                  startDelay    = config.startDelay;
     },  
 
     getData : function(){
-                data          = config.data;
-                collectionKey = config.collectionKey;
-                fetch         = config.fetchData;
-                responseKeys  = config.dataKeys;
-                range         = config.range;
-                appendDelay   = config.appendDelay;
-                startDelay    = config.startDelay;
-                
                 var deferred  = $q.defer();
-
+                console.log(this);
                 $rootScope.$broadcast('showLoading');
 
                 if (!cache.data[collectionKey]) {
@@ -178,7 +197,7 @@ angular.module('ngLazy.factories',[])
                     angular.forEach(responseKeys, function(key){
                       cache.data[key] = res.data[key];
                       if (key === collectionKey) {
-                        data[key]       = [];
+                        data[key] = [];
                         data[key] = data[key].concat(cache.data[key].splice(0, range));
                       } else {
                         data[key] = cache.data[key]; 
@@ -198,21 +217,33 @@ angular.module('ngLazy.factories',[])
     },
 
     load :  function(){
-              var deferred = $q.defer();
-              var _this = this;
+              var deferred              = $q.defer();
+              var _this                 = this;
+              var undefinedConfigValues = false;
 
               $rootScope.$broadcast('showLoading');
               
-              var loadTimer = $timeout(function(){ 
-                _this.getData().then(function(col){
-                  deferred.resolve(col);
-                });
-              }, startDelay);
-              
-              loadTimer.then(function(){ 
-                $timeout.cancel(loadTimer);
+              // Check for config bindings before initiating a request with undefined parameters 
+              angular.forEach(Object.keys(config), function(key){
+                if (!config[key]) { undefinedConfigValues = true; }
               });
 
+              if (undefinedConfigValues){
+
+                // wait for bindings and try again
+                deferred.reject(new Error('Bindings are not yet defined'));
+
+              } else {
+                var loadTimer = $timeout(function(){ 
+                  _this.getData().then(function(col){
+                    deferred.resolve(col);
+                  });
+                }, startDelay);
+                
+                loadTimer.then(function(){ 
+                  $timeout.cancel(loadTimer);
+                });
+              }
               return deferred.promise;
     }
   });
