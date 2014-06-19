@@ -109,7 +109,6 @@ angular.module('ngLazy.directives',[])
               
               lazyLoadConfig = bindConfiguration();
               lazyLoader.configure(lazyLoadConfig);
-
               scope.$watch('spinnerColor', function(){
                 angular.element(loadingWidget.css({
                   borderColor : 'transparent ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor + ' ' + scope.lazySpinnerColor || 'transparent rgb(85, 148, 250) rgb(85, 148, 250) rgb(85, 148, 250)'
