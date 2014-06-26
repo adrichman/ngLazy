@@ -67,7 +67,7 @@ angular.module('ngLazy.directives',[])
 
             var winEl             = angular.element($window),
                 win               = winEl[0],
-                lazyBottom        = angular.element(document.querySelector('#lazy-bottom'))[0],
+                lazyBottom        = angular.element(document.querySelector('#lazy-bottom')) || angular.element(document.querySelector('#lazy-bottom'))[0],
                 scrollHeight      = getScrollHeight(),
                 itemHeight        = scrollHeight - lazyBottom.offsetTop,
                 threshold         = getThreshold(scrollHeight, itemHeight),
