@@ -86,7 +86,57 @@ In your view, wrap the element containing the ng-repeat with the lazy-load eleme
       </lazy-load>
 ```
 
+#### Testing!
+
+This library is difficult to test, and improve, without any sort of integration in a working application. That's why there's [ng-Lazy.com](http://ng-Lazy.com). Please visit the [ng-Lazy.com repo](https://github.com/adrichman/ngLazy-demo.git) for the unit and e2e tests.
+
+###Library installation:
+
+```
+bower install ngLazy
+```
+
+###Building and editing
+
+Please reference the demo app and its specs while developing in this library. Upon making changes and needing to re-build:
+
+```
+gulp build
+```
+
+###Demo App / Specs Installation
+
+clone down the repo:
+
+```
+git clone https://github.com/adrichman/ngLazy-demo
+```
+
+install the dependencies:
+
+```
+cd ngLazy-demo
+npm install
+bower install
+```
+
+###Running it:
+
+serve it:
+
+``` 
+grunt serve
+```
+
+###Run the specs:
+
+first, serve it. then:
+
+```
+grunt test
+```
+
 __Pull Requests are Welcomed__
+
 ###TODO:
-* tests!!
 * more flexibility with different api responses and data services
