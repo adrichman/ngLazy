@@ -5,6 +5,8 @@
 
 __Live Demo: [http://ng-Lazy.com](http://ng-Lazy.com)__
 
+__Demo App with Spec Suite: [https://github.com/adrichman/ngLazy-demo.git](https://github.com/adrichman/ngLazy-demo.git)__
+
 Requires one simple directive wrapping the targeted area.
 
 The widget is configured via the element's attributes, which miror the keys:
