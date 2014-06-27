@@ -67,9 +67,9 @@ angular.module('ngLazy.directives',[])
 
             var winEl             = angular.element($window),
                 win               = winEl[0],
-                lazyBottom        = lazyBottom && (scrollHeight - lazyBottom.offsetTop) || 100,
+                lazyBottom        = angular.element(document.querySelector('#lazy-bottom')) || angular.element(document.querySelector('#lazy-bottom'))[0],
                 scrollHeight      = getScrollHeight(),
-                itemHeight        = scrollHeight - lazyBottom.offsetTop,
+                itemHeight        = lazyBottom && (scrollHeight - lazyBottom.offsetTop) || 100,
                 threshold         = getThreshold(scrollHeight, itemHeight),
                 loadingWidget     = angular.element(document.querySelector('.loading-widget')),
                 lazyLoader        = $injector.get('lazyLoader'),
